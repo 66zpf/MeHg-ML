@@ -1,71 +1,35 @@
-# Regional MeHg analysis
+# MeHg-ML
 
-Four ordinary Python scripts follow the Supporting Information. Each script is organized from input to output. Paths and study settings are written near the beginning of each file.
+Code and data for regional seawater methylmercury (MeHg) analysis in the East China Sea, Yellow Sea, and Bohai Sea.
 
-| File | Content |
+## Code
+
+| File | Description |
 | --- | --- |
-| `01_observations.py` | Observation units, pH, AOU, stratification, and model inputs |
-| `02_cmip6_scenarios.py` | Monthly CMIP6 processing, annual inputs, and THg pathways |
-| `03_model_training.py` | Six algorithms, tuning, continuous ensemble weights, comparison, and scenario prediction |
-| `04_input_ranges.py` | Training ranges, 2060 ranges, and area outside the training range |
+| [01_observations.py](01_observations.py) | Processes observation units, pH, AOU, stratification, and log-transformed model inputs. |
+| [02_cmip6_scenarios.py](02_cmip6_scenarios.py) | Converts monthly GFDL-ESM4 data into annual environmental inputs and constructs five THg decline pathways. |
+| [03_model_training.py](03_model_training.py) | Compares six machine learning algorithms and weighted ensembles, tunes model parameters and ensemble weights, and predicts regional MeHg responses. |
+| [04_input_ranges.py](04_input_ranges.py) | Compares 2060 environmental inputs with observed ranges and calculates the grid-cell area outside those ranges. |
+| [search_spaces.json](search_spaces.json) | Hyperparameter search ranges for ExtraTrees, random forest, LightGBM, XGBoost, CatBoost, and histogram-based gradient boosting. |
+| [requirements.txt](requirements.txt) | Python packages used by the scripts. |
 
-The scripts form a working outline for connecting local data.  Input names below define the expected file layout and can be changed at the beginning of each script.
+## Data
 
-## Input layout
+### Observations
 
-```text
-data/
-  observations.csv
-  ocean_grid.csv
-  station_endpoints.csv
-  background_2017.csv
-  cmip6/
-    ssp245/
-      thetao.nc
-      so.nc
-      o2.nc
-      ph.nc
-      dissoc.nc
-      chl.nc
-    ssp585/
-      thetao.nc
-      so.nc
-      o2.nc
-      ph.nc
-      dissoc.nc
-      chl.nc
-```
+[date.xlsx](date.xlsx) contains 1,004 seawater observation records in the `Data` sheet, with 16 fields. These include water depth, temperature, salinity, dissolved oxygen, pH, chlorophyll a, DOC, nitrate, SPM, THg, and MeHg. Variable names and units are given in the column headings.
 
-`observations.csv` contains the retained observation records. Columns are `station_id`, `profile_id`, `longitude`, `latitude`, `water_depth`, `temperature`, `practical_salinity`, `do`, `doc_mg_c_l`, `spm`, `nitrate`, `thg`, `chl_a`, `mehg`, and either `ph_total` or `ph_original` with `ph_input_scale`. Original pH scale codes follow the [PyCO2SYS documentation](https://pyco2sys.readthedocs.io/en/latest/co2sys_nd/). Concentrations of MeHg and THg are in ng/L. Other units follow Table S1. No additional sample-screening rules are introduced.
+### Annual scenario results
 
-`ocean_grid.csv` contains one row per ocean cell, with `cell_id`, `region`, `longitude`, `latitude`, and `area_m2`. Region codes are ECS, YS, and BS. Coordinates match the climate grid. `background_2017.csv` contains `cell_id`, `thg`, `spm`, and `nitrate`.
+[annual_regional_mehg_scenarios_2017_2060.csv](annual_regional_mehg_scenarios_2017_2060.csv) contains 1,320 annual regional results for 2017–2060. It covers the East China Sea, Yellow Sea, and Bohai Sea under SSP2-4.5 and SSP5-8.5, with THg reductions of 0%, 10%, 30%, 50%, and 80% by 2060.
 
-`station_endpoints.csv` contains `station_id`, `region`, `longitude`, `latitude`, `shallow_depth`, and `deep_depth`.
-
-CMIP6 files use coordinate names `time`, `lev`, `lat`, and `lon`. Depth bounds use `lev_bnds` with a `bnds` dimension. The scripts use these standard names as the data-connection framework.
-
-## Running order
-
-```bash
-python -m pip install -r requirements.txt
-python 01_observations.py
-python 02_cmip6_scenarios.py
-python 03_model_training.py
-python 04_input_ranges.py
-```
-
-The training script compares tuned single models and continuously optimized ensembles. It does not prescribe a winning model or return fixed weights. `search_spaces.json` records Table S3. Outputs are written under `outputs/`.
-
-## Main outputs
-
-| File | Content |
+| Column | Description |
 | --- | --- |
-| `training_data.csv` | Target and 12 predictors |
-| `scenario_inputs.csv` | Annual climate inputs and five THg pathways |
-| `model_performance.csv` | Pooled outer-fold metrics |
-| `model_comparison.csv` | Inner-fold model comparison and selected parameters |
-| `pooled_oof_predictions.csv` | Held-out predictions |
-| `selected_model.json` | Final selection, parameters, and weights |
-| `model.joblib` | Fitted model members |
-| `regional_scenario_predictions.csv` | Area-weighted regional concentrations and responses |
-| `input_ranges_2060.csv` | Environmental range comparison |
+| `region` | Sea region. |
+| `climate_scenario` | Climate scenario: SSP2-4.5 or SSP5-8.5. |
+| `thg_reduction_2060_pct` | Prescribed THg reduction by 2060 relative to 2017 (%). |
+| `year` | Calendar year. |
+| `thg_fraction_remaining` | THg fraction remaining relative to 2017. |
+| `predicted_mehg_ng_L` | Predicted regional MeHg concentration (ng/L). |
+| `reference_mehg_ng_L` | Reference MeHg concentration used to calculate the response (ng/L). |
+| `mehg_response_pct` | MeHg change relative to the reference (%). |
