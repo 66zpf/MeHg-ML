@@ -9,7 +9,7 @@ Four ordinary Python scripts follow the Supporting Information. Each script is o
 | `03_model_training.py` | Six algorithms, tuning, continuous ensemble weights, comparison, and scenario prediction |
 | `04_input_ranges.py` | Training ranges, 2060 ranges, and area outside the training range |
 
-The scripts form a working outline for connecting local data. They have not been run on the study data. Input names below define the expected file layout and can be changed at the beginning of each script.
+The scripts form a working outline for connecting local data.  Input names below define the expected file layout and can be changed at the beginning of each script.
 
 ## Input layout
 
