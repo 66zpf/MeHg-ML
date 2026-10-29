@@ -1,0 +1,14 @@
+numpy
+pandas
+xarray
+cftime
+netCDF4
+gsw
+PyCO2SYS
+scikit-learn==1.8.0
+lightgbm==4.6.0
+xgboost
+catboost
+optuna
+scipy
+joblib
